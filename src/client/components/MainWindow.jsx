@@ -7,21 +7,32 @@ class MainWindow extends Component {
     super(props);
     this.socket = props.socket;
     this.state = {
-      messages: [
-        "Hello",
-        "World"
-      ]
+      messages: []
     };
     this.addMessage = this.addMessage.bind(this);
     this.socket.on("receive_message", data => this.addMessage(data.message));
+    this.socket.on("snapshot", data => this.addSnapshot(data.snapshot));
   }
 
   addMessage(message) {
     if (!message || message.length === 0) return;
-    const newMessages = this.state.messages.splice(0);
+    const newMessages = this.state.messages.slice(0);
     newMessages.push(message);
     this.setState({
       messages: newMessages
+    }, () => {
+      const messageIndex = document.getElementById("message-index");
+      messageIndex.scrollTop = messageIndex.scrollHeight;
+    });
+  }
+
+  addSnapshot(snapshotMessages) {
+    console.log(snapshotMessages);
+    if (!snapshotMessages) {
+      return;
+    }
+    this.setState({
+      messages: snapshotMessages
     }, () => {
       const messageIndex = document.getElementById("message-index");
       messageIndex.scrollTop = messageIndex.scrollHeight;
